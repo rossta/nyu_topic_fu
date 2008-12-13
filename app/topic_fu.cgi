@@ -28,7 +28,13 @@ if($page eq 'HOME') {
 } elsif ($page eq 'VIEW') {
   &show_view;
   print "<hr />";
-  print a({-href => &edit_path($topic)}, "Edit");
+  print "<div style='text-align:center'>";
+  if(param('revision')) {
+    print a({-href => &view_path($topic), -class => 'nav_link'}, "Back to latest");
+  } else {
+    print a({-href => &edit_path($topic), -class => 'nav_link'}, "Edit");
+  }
+  print "</div>";
   &back_button;
 } elsif ($page eq 'EDIT') {
   &edit_form;
@@ -38,6 +44,7 @@ if($page eq 'HOME') {
   &preview_form;
   &back_button('edit', "Cancel and go back");
 }
+print "<div style='clear:left'></div>";
 print "</div>";
 
 &footer;
@@ -149,7 +156,7 @@ sub preview_form {
 
 sub back_button {
   my $back_to = $_[0] || 'home';
-  my $text = $_[1] || "Back";
+  my $text = $_[1] || "<< Go back";
   param('action',$back_to);
   
   print start_form,

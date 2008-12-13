@@ -33,6 +33,11 @@ hr {
   margin:0.5em 0;
   text-align:center
 }
+h3.version {
+  font-size: 50%;
+  text-align:center;
+  color:#11aa11;
+}
 #main form {
   text-align:center
 }
@@ -59,8 +64,9 @@ hr {
   font-size: 110%;
 }
 .back {
+  clear: left;
   display:block;
-  text-align:center;
+  text-align:left;
   font-size:50%;
   text-decoration:none;
   margin-top:2em;
@@ -126,4 +132,18 @@ hr {
 #search_form input.text {
   margin-right:6px;
   width:154px;
+}
+
+a.nav_link {
+  color: #0099cc;
+  text-decoration: none;
+  text-align:center;
+  background: #cccccc;
+  border: 2px solid #999999;
+  font-size: 60%;
+  padding: 5px 15px;
+}
+
+a.nav_link:hover {
+  background: #99ff66;
 }

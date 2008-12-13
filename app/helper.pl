@@ -12,21 +12,39 @@ sub revision_for {
   my $dir = "$STORE/$TOPIC_DIR/$topic/$revision";
 }
 sub most_recent_file_for {
-  my $topic_dir = shift @_;
-  my $dir = "$STORE/$TOPIC_DIR/$topic_dir";
+  my $topic = shift @_;
+  my $dir = "$STORE/$TOPIC_DIR/$topic";
   return unless -d $dir;
   opendir( TOPIC_DIR, $dir )
     or die "Error: cannot open $dir: $!\n";
 
   my $current_file;
-  while ( my $f = readdir(TOPIC_DIR) ) {
-    next unless -f "$dir/$f";
-    if ( !defined $current_file || $f > $current_file) {
-      $current_file = $f;
+  while ( my $name = readdir(TOPIC_DIR) ) {
+    next if($date =~ /^\./);
+    my $filename = "$dir/$name";
+    next unless -f $filename and -r $filename;
+    warn "topic file for $topic: $filename";
+    if ( !defined $current_file || $name > $current_file) {
+      $current_file = $name;
+      warn "assigning current file $current_file";
     }
   }
-  
   return "$dir/$current_file";
+}
+
+sub topic_index_files {
+  my @index_list = ();
+  my $dir = "$STORE/$INDEX_DIR";
+  opendir( INDEX_DIR, $dir )
+    or die "Error: cannot open $dir: $!\n";
+  while( my $name = readdir(INDEX_DIR)) {
+    next if($name =~ /^\./);
+    my $filename = "$dir/$name";
+    next unless -f $filename and -r $filename;
+    push(@index_list, $filename);
+  } 
+  warn "index files: @index_list" if $DEBUG;
+  return @index_list;
 }
 sub most_recent_files_for_all_topics {
   my @topic_list = ();
@@ -35,10 +53,9 @@ sub most_recent_files_for_all_topics {
     or die "Error: cannot open $dir: $!\n";
 
   my $current_file = "";
-  while ( my $f = readdir(ALL_TOPICS) ) {
-    next if($f eq ".");
-    next if($f eq "..");
-    $current_file = &most_recent_file_for($f);
+  while ( my $name = readdir(ALL_TOPICS) ) {
+    next if($name =~ /^\./);
+    $current_file = &most_recent_file_for($name);
     push(@topic_list, $current_file);
   }
   return @topic_list;
@@ -51,12 +68,13 @@ sub revisions_for_topic {
   return unless -d $dir;
   opendir( REVISIONS, $dir )
     or die "Error: cannot open $dir: $!\n";
-  while ( my $f = readdir(REVISIONS) ) {
-    my $filename = "$dir/$f";
-    next unless -f $filename;
+  while ( my $name = readdir(REVISIONS) ) {
+    next if($name =~ /^\./);
+    my $filename = "$dir/$name";
+    next unless -f $filename and -r $filename;
+    next if $filename eq $most_recent;
     push(@topic_list, $filename);
   }
-  warn "revisions : @topic_list" if $DEBUG;
   return @topic_list;
 }
 
@@ -89,7 +107,7 @@ sub page_title {
   print div({-id => "wrapper"});
   &search_html;
   if($page_title eq 'VIEW') {
-    &sidebar_topics("Recent Revisions", &previous_revisions(param('topic')))
+    &sidebar_topics("Previous  Revisions", &previous_revisions(param('topic')))
   } else {
     &sidebar_topics("Recent Updates", &recent_topics(5)); 
   }
@@ -102,7 +120,17 @@ sub page_title {
     print h2({-class => "page_title"}, "Search Results");
   } else {
     print h2({-class => "page_title"}, $page_topic);
+    if($page_title eq 'VIEW') {
+      my $revision;
+      if(param('revision')) {
+        $revision = &time_format("%l:%M:%S %p %b %d, %Y", param('revision'));
+      }else{
+        $revision = "Latest";
+      }
+      print h3({-class => "version"}, "Version: $revision");
+    }
   }
+  
   print "<hr/>";
 }
 sub footer {
@@ -252,7 +280,7 @@ sub topic_list_items_for {
       a({-href=>$file_data{'href'},-class =>'topic_title'}, $file_data{'name'}),
       "<br />",
       span(
-          &time_format("%l:%M%p %b %d, %Y", $file_data{'timestamp'})
+          &time_format("%l:%M:%S %p %b %d, %Y", $file_data{'timestamp'})
         )
       )
     );
