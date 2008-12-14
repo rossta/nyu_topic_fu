@@ -28,8 +28,9 @@ describe "view" do
     end
 
     it "should contain a link to go back" do
+      pending
       params = { "topic" => "Princeton", "action" => "view" }
-      response_post_attribute("form .back input", "value", params).should == "Back"
+      response_post_attribute(".back input", "value", params).should == "<< Home"
     end
     
     it "should retrieve content for an existing topic" do

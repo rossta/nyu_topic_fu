@@ -19,7 +19,7 @@ describe "edit" do
     end
     
     it "should contain a link to go back" do
-      response_post_attribute("form .back input", "value", @params).should == "Back"
+      response_post_attribute("form .back input", "value", @params).should == "<< Home"
     end
     
     it "should contain most recent existing content if topic already exists" do

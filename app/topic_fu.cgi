@@ -27,16 +27,9 @@ if($page eq 'HOME') {
   &topic_form;
 } elsif ($page eq 'VIEW') {
   &show_view;
-  print "<hr />";
-  print "<div class='view_nav'>";
-  if(param('revision')) {
-    print a({-href => &view_path($topic), -class => 'nav_link'}, "Back to latest");
-  } else {
-    print a({-href => &edit_path($topic), -class => 'nav_link'}, "Edit topic");
-    print a({-href => '#', -class => 'nav_link add_comment'}, "Add comment");
-  }
-  print "</div>";
+  &view_nav;
   &comment_form;
+  &show_comments;
   &back_button;
 } elsif ($page eq 'EDIT') {
   &edit_form;
@@ -56,19 +49,7 @@ sub page_redirect {
   my $p = $_[0];
   if($FLASH || $p eq 'HOME') { return 'HOME'; }
   if($p eq 'VIEW') {
-    if(param('revision')) {
-      $file = &revision_for($topic, param('revision')); 
-    } else {
-      $file = &most_recent_file_for($topic); 
-    }
-    warn "filename: $file" if $DEBUG;
-    if ( -e $file && -f $file) {
-      &open_file($file);
-    } else { 
-      $FLASH = "Error: topic does not exist"; 
-      $topic = "Choose a topic";
-      return 'HOME' 
-    }
+    $p = &view_redirect;
   } elsif ($p eq 'EDIT') {
     $file = &most_recent_file_for($topic);
     if ( -e $file && -f $file) {
@@ -76,18 +57,15 @@ sub page_redirect {
     }
   } elsif ($p eq 'CREATE') {
     my $data = param('content');
-    my $time = time;
-    my $file_key = "$SID/$TOPIC_DIR/$topic/$time";
-    my $store_cmd = "simplestore write $file_key \"$data\"";
-    warn "store command: $store_cmd" if $DEBUG;
-    `$store_cmd`;
-    
+    my $topic_dir = "$TOPIC_DIR/$topic";
+    my $file_key = &simplestore_data_to($topic_dir, $data);
+        
     my $index_key = "$SID/$INDEX_DIR/$topic";
     my $index_cmd = "simpleindex $file_key | simplestore write $index_key";
     warn "index command: $index_cmd" if $DEBUG;
     `$index_cmd`;
     
-    if ( -e "$SID/$TOPIC_DIR/$topic/$time") {
+    if ( -e "$file_key") {
       $FLASH = "Topic '$topic' saved successfully!"
     } else {
       $FLASH = "Error: '$topic' file not saved.";
@@ -95,23 +73,53 @@ sub page_redirect {
     }
     $topic = "Choose a topic";
     return 'HOME';
+  } elsif ($p eq 'COMMENT') {
+    $p = &view_redirect;
+    my $comment = param('comment');
+    if ($comment) {
+      my $name = param('name');
+      if($name) {
+        $name = lc $name;
+        $name =~ s/[,\/]//g;
+      } else {
+        $name = 'anonymous';
+      }
+      my $comment_dir = "$COMMENT_DIR/$topic/$name";
+      my $file_key = &simplestore_data_to($comment_dir, $comment);
+      if ( -e "$file_key") {
+        $FLASH = "Your comment has been added"
+      } else {
+        $FLASH = "Sorry, your comment could not be saved.";
+      }
+    } else {
+      $FLASH = "Gotta type your comment to add your comment!";
+    }
   }
   return $p;
 }
 
-sub open_file {
-  my $file = $_[0];
-  warn "opening file: $file";
-  open( CONTENT, $file )
-    or die "Error: cannot open $file: $!\n";
+sub view_redirect {
+  if(param('revision')) {
+    $file = &revision_for($topic, param('revision')); 
+  } else {
+    $file = &most_recent_file_for($topic); 
+  }
+  warn "filename: $file" if $DEBUG;
+  if ( -e $file && -f $file) {
+    &open_file($file);
+  } else { 
+    $FLASH = "Error: topic does not exist"; 
+    $topic = "Choose a topic";
+    return 'HOME' 
+  }
+  return 'VIEW';
 }
-
-
 sub edit_form {
   my $content;
   while (<CONTENT>) {
     $content = $content.$_;
   }
+  close(CONTENT);
   param('action','preview');
   print start_form,
     p({-class => "topic" },
@@ -179,9 +187,67 @@ sub show_view {
   while(<CONTENT>) {
     $text = $text . $_;
   }
+  close (CONTENT);
   printf div({-class => "content" }, &html_format($text));
 }
 
+sub show_comments {
+  
+  if (my @comment_files = &comments_on($topic)) {
+    @comment_files = &sorted_timestamp_file_list(@comment_files);
+    print "<h4>Comments</h4>";
+    print "<ul id='comments'>";
+    foreach $file (@comment_files) {
+      if ( -e $file && -f $file) {
+        my $name = $file;
+        my $date = $file;
+        $date =~ s/.*\/([^\/]*)$/$1/g;
+        $date = &time_format($date);
+        $name =~ s/.*\/([^\/]*)\/.*$/$1/g;
+        &open_file($file, COMMENT);
+        my $comment = "";
+        while(<COMMENT>) {
+          $comment = $comment . $_;
+        }
+        close COMMENT;
+        printf li({-class => "comment" }, 
+          "<p class='author'><span>$name</span> says </p>",
+          &html_format($comment),
+          "<p class='date'>$date</p>");
+      }
+    }
+    print "</ul>";
+  } else {
+    debug("No COMMENTS!!!!");
+    print p({-class => 'blank_slate'}, "Be the first to post a comment!");
+  }
+}
+
+sub comments_on {
+  my $topic = shift @_;
+  my @comment_file_list;
+  my $comment_dir = "$SID/$COMMENT_DIR/$topic";
+  return unless -e $comment_dir and -d $comment_dir;
+  opendir( COMMENT_DIR, $comment_dir )
+    or die "Error: cannot open $comment_dir: $!\n";
+  while( my $author = readdir(COMMENT_DIR)) {
+    next if($author =~ /^\./);
+    my $author_dir = "$comment_dir/$author";
+    next unless -d $author_dir and -r $author_dir;
+    opendir( AUTHOR_DIR, $author_dir ) 
+      or die "Error: cannot open $author_dir: $!\n";
+    while ( my $comment = readdir(AUTHOR_DIR)) {
+      next if($comment =~ /^\./);
+      my $comment_file = "$author_dir/$comment";
+      next unless -f $comment_file and -r $comment_file;
+      push (@comment_file_list, $comment_file);
+    }
+    close AUTHOR_DIR;
+  }
+  close COMMENT_DIR;
+  return @comment_file_list;
+  
+}
 sub show_flash {
   if($FLASH) {
     print p({-class => "flash"},
@@ -219,4 +285,16 @@ sub back_link {
   my $text = $_[0] || "Cancel and go back";
   my $href = $_[1] || $HOME_URL;
   print a({-href=>$href, -class=>'back'}, $text);
+}
+
+sub view_nav {
+  print "<hr />";
+  print "<div class='view_nav'>";
+  if(param('revision')) {
+    print a({-href => &view_path($topic), -class => 'nav_link'}, "Back to latest");
+  } else {
+    print a({-href => &edit_path($topic), -class => 'nav_link'}, "Edit topic");
+    print a({-href => '#', -class => 'nav_link add_comment'}, "Add comment");
+  }
+  print "</div>";
 }

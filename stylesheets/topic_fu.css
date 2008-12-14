@@ -153,7 +153,7 @@ a.nav_link:hover {
   font-size: 75%;
 }
 #main #comment_form {
-  padding: 10px 0;
+  padding: 10px;
   background: #dedede;
   display:none;
 }
@@ -166,5 +166,5 @@ a.nav_link:hover {
 }
 #main .view_nav {
   text-align: left;
-  height: 40px;
+  height: 30px;
 }

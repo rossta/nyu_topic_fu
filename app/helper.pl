@@ -9,7 +9,7 @@ use POSIX qw(strftime);
 sub revision_for {
   my $topic = shift @_;
   my $revision = shift @_;
-  my $dir = "$STORE/$TOPIC_DIR/$topic/$revision";
+  return "$STORE/$TOPIC_DIR/$topic/$revision";
 }
 sub most_recent_file_for {
   my $topic = shift @_;
@@ -31,7 +31,7 @@ sub most_recent_file_for {
 }
 
 sub most_recent_files_for_all_topics {
-  my @topic_list = ();
+  my @topic_list;
   my $dir = "$STORE/$TOPIC_DIR";
   opendir( ALL_TOPICS, $dir )
     or die "Error: cannot open $dir: $!\n";
@@ -45,7 +45,7 @@ sub most_recent_files_for_all_topics {
   return @topic_list;
 }
 sub revisions_for_topic {
-  my @topic_list = ();
+  my @topic_list;
   my $topic_dir = shift @_;
   my $dir = "$STORE/$TOPIC_DIR/$topic_dir";
   my $most_recent = most_recent_file_for($topic_dir);
@@ -107,7 +107,7 @@ sub page_title {
     if($page_title eq 'VIEW') {
       my $revision;
       if(param('revision')) {
-        $revision = &time_format("%l:%M:%S %p %b %d, %Y", param('revision'));
+        $revision = &time_format(param('revision'), "%l:%M:%S %p %b %d, %Y");
       }else{
         $revision = "Latest";
       }
@@ -200,7 +200,7 @@ sub file_data {
   return %file;
 }
 
-sub sorted_topic_list {
+sub sorted_timestamp_file_list {
   return sort{
     @list_a = split(/\//, $a);
     @list_b = split(/\//, $b);
@@ -211,8 +211,8 @@ sub sorted_topic_list {
 }
 
 sub time_format {
-  my $format = shift @_;
   my $time = shift @_;
+  my $format = shift @_ || "%l:%M:%S %p %b %d, %Y";
   return strftime($format, localtime($time));
 }
 
@@ -240,18 +240,18 @@ sub sidebar_topics {
 sub recent_topics {
   $_ = shift @_;
   my @topic_list = &most_recent_files_for_all_topics;
-  my @sorted_topic_list = &sorted_topic_list(@topic_list);
+  my @sorted_topic_list = &sorted_timestamp_file_list(@topic_list);
   return &topic_list_items_for(@sorted_topic_list);
 }
 
 sub previous_revisions {
   $_ = shift @_;
   my @topic_list = &revisions_for_topic($_);
-  my @sorted_topic_list = &sorted_topic_list(@topic_list);
+  my @sorted_topic_list = &sorted_timestamp_file_list(@topic_list);
   &topic_list_items_for(@sorted_topic_list)
 }
 sub topic_list_items_for {
-  my @topic_list_items = ();
+  my @topic_list_items;
   my $count = 1;
   foreach $topic_file (@_) {
     last if $count > 5;
@@ -260,7 +260,7 @@ sub topic_list_items_for {
       a({-href=>$file_data{'href'},-class =>'topic_title'}, $file_data{'name'}),
       "<br />",
       span(
-          &time_format("%l:%M:%S %p %b %d, %Y", $file_data{'timestamp'})
+          &time_format($file_data{'timestamp'}, "%l:%M:%S %p %b %d, %Y")
         )
       )
     );
@@ -268,6 +268,27 @@ sub topic_list_items_for {
   }
   return @topic_list_items;
 }
+
+sub simplestore_data_to {
+  my $dir = shift @_;
+  my $data = shift @_;
+  
+  my $time = time;
+  my $file_key = "$SID/$dir/$time";
+  my $store_cmd = "simplestore write \"$file_key\" \"$data\"";
+  warn "store command: $store_cmd" if $DEBUG;
+  `$store_cmd`;
+  return $file_key;
+}
+
+sub open_file {
+  my $file = shift @_;
+  my $file_handle = shift @_ || CONTENT;
+  warn "opening file: $file";
+  open( $file_handle, $file )
+    or die "Error: cannot open $file: $!\n";
+}
+
 
 #Routes
 sub view_path {

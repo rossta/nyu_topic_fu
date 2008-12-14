@@ -202,7 +202,7 @@ describe "preview" do
     end
 
     it "should have option to go back" do
-      response_post_attribute("#main form .back input", "value", @params).should == "Cancel and go back"
+      response_post_attribute("#main form .back input", "value", @params).should == "<< Cancel and go back"
     end
     
     it "should preserve content with back"
