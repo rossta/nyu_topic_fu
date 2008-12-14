@@ -138,12 +138,33 @@ a.nav_link {
   color: #0099cc;
   text-decoration: none;
   text-align:center;
-  background: #cccccc;
+  background: #ededed;
   border: 2px solid #999999;
   font-size: 60%;
   padding: 5px 15px;
+  margin-right: 5px;
+  margin-bottom: 5px;
 }
 
 a.nav_link:hover {
   background: #99ff66;
+}
+#search_results_list span {
+  font-size: 75%;
+}
+#main #comment_form {
+  padding: 10px 0;
+  background: #dedede;
+  display:none;
+}
+#main #comment_form input.text {
+  width: 326px;
+}
+#main #comment_form form {
+  font-size: 75%;
+  text-align: left;
+}
+#main .view_nav {
+  text-align: left;
+  height: 40px;
 }

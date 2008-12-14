@@ -20,32 +20,16 @@ sub most_recent_file_for {
 
   my $current_file;
   while ( my $name = readdir(TOPIC_DIR) ) {
-    next if($date =~ /^\./);
+    next if($name =~ /^\./);
     my $filename = "$dir/$name";
     next unless -f $filename and -r $filename;
-    warn "topic file for $topic: $filename";
     if ( !defined $current_file || $name > $current_file) {
       $current_file = $name;
-      warn "assigning current file $current_file";
     }
   }
   return "$dir/$current_file";
 }
 
-sub topic_index_files {
-  my @index_list = ();
-  my $dir = "$STORE/$INDEX_DIR";
-  opendir( INDEX_DIR, $dir )
-    or die "Error: cannot open $dir: $!\n";
-  while( my $name = readdir(INDEX_DIR)) {
-    next if($name =~ /^\./);
-    my $filename = "$dir/$name";
-    next unless -f $filename and -r $filename;
-    push(@index_list, $filename);
-  } 
-  warn "index files: @index_list" if $DEBUG;
-  return @index_list;
-}
 sub most_recent_files_for_all_topics {
   my @topic_list = ();
   my $dir = "$STORE/$TOPIC_DIR";
@@ -174,7 +158,6 @@ sub html_format {
   $_ = shift @_;
   my %escape = ('&' => '&amp;', '<' => '&lt;', '>' => '&gt;');
   my $replace = join '', keys %escape;
-  warn "formatting: $_" if $DEBUG;
   s/([$replace])/$escape{$1}/g;
   s/^\r[\n]?$/<p>/gm;
   s/^---\+ ([^\r\n]*)/<h1>$1<\/h1>/gm;
@@ -185,7 +168,6 @@ sub html_format {
   s/\!([^\!]*)\!/<img src="$1" \/>/gm;
   $_ = &bulleted_lists($_);
   s/[\r\n]*//gm;
-  warn "formatting: $_" if $DEBUG;
   $_ = &link_topics($_);
   return $_;
 }
@@ -199,20 +181,18 @@ sub bulleted_lists {
 }
 sub link_topics {
   my $html = shift @_;
-  warn "dir: $SID/$TOPIC_DIR" if $DEBUG;
   @topics = `ls $SID/$TOPIC_DIR`;
   foreach(@topics) {
     chomp($_);
     my $href = &view_path($_);
     $html =~ s/$_/<a href="$href">$_<\/a>/gm;
   }
-  warn "html: $html" if $DEBUG;
   return $html;
 }
 
 sub file_data {
   $_ = shift @_;
-  %file = {};
+  my %file;
   my @filename = split(/\//, $_);
   $file{'timestamp'} = pop(@filename);
   $file{'name'} = pop(@filename);
@@ -294,10 +274,16 @@ sub view_path {
   my $file = shift @_;
   my $timestamp = shift @_;
   my $url = "$HOME_URL?action=view&topic=$file";
-  $url = $url . "&revision=$timestamp" if $timestamp;
+  if (param('action') and (param('action') eq 'edit' or param('action') eq 'view')) {
+    $url = $url . "&revision=$timestamp" if $timestamp;
+  }
   return $url;
 }
 sub edit_path {
   my $file = shift @_;
   return "$HOME_URL?action=edit&topic=$file";
+}
+
+sub debug {
+  warn "@_" if $DEBUG;
 }

@@ -28,13 +28,15 @@ if($page eq 'HOME') {
 } elsif ($page eq 'VIEW') {
   &show_view;
   print "<hr />";
-  print "<div style='text-align:center'>";
+  print "<div class='view_nav'>";
   if(param('revision')) {
     print a({-href => &view_path($topic), -class => 'nav_link'}, "Back to latest");
   } else {
-    print a({-href => &edit_path($topic), -class => 'nav_link'}, "Edit");
+    print a({-href => &edit_path($topic), -class => 'nav_link'}, "Edit topic");
+    print a({-href => '#', -class => 'nav_link add_comment'}, "Add comment");
   }
   print "</div>";
+  &comment_form;
   &back_button;
 } elsif ($page eq 'EDIT') {
   &edit_form;
@@ -42,7 +44,7 @@ if($page eq 'HOME') {
 } elsif ($page eq 'PREVIEW') {
   &show_preview;
   &preview_form;
-  &back_button('edit', "Cancel and go back");
+  &back_button('edit', "<< Cancel and go back");
 }
 print "<div style='clear:left'></div>";
 print "</div>";
@@ -156,7 +158,7 @@ sub preview_form {
 
 sub back_button {
   my $back_to = $_[0] || 'home';
-  my $text = $_[1] || "<< Go back";
+  my $text = $_[1] || "<< Home";
   param('action',$back_to);
   
   print start_form,
@@ -186,6 +188,31 @@ sub show_flash {
       $FLASH,
     );
   }
+}
+
+sub comment_form {
+  param('action', 'comment');
+  print "<div id='comment_form'>";
+  print start_form,
+    hidden(-name=>'action'),
+    hidden(-name=>'topic', -default=>[param('topic')]),
+    "<table><tr>",
+    "<td>",
+    label("Name"),
+    "</td>",
+    "<td>",
+    textfield({-name => 'name', -class => 'text'}),
+    "</td></tr><tr><td>",
+    label("Comment"),
+    "</td>",
+    "<td>".
+    textarea({-name => 'comment', -rows => 5, -columns => 40 }),
+    "</td></tr><tr><td>&nbsp;</td><td>",
+    span({-class => "comment"}, submit("Add"),),
+    "</td></tr>",
+    "</table>",
+  end_form;
+  print "</div>";
 }
 
 sub back_link {
