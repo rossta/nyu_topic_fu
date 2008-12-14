@@ -256,17 +256,52 @@ sub topic_list_items_for {
   foreach $topic_file (@_) {
     last if $count > 5;
     my %file_data = &file_data($topic_file);
+    my $comments = &comment_description($file_data{'name'}, $file_data{'href'});
     push(@topic_list_items, li({-class => "topic_$count"}, 
       a({-href=>$file_data{'href'},-class =>'topic_title'}, $file_data{'name'}),
+      $comments,
       "<br />",
-      span(
-          &time_format($file_data{'timestamp'}, "%l:%M:%S %p %b %d, %Y")
-        )
+      span(&time_format($file_data{'timestamp'}))
       )
     );
     $count = $count + 1;
   }
   return @topic_list_items;
+}
+
+sub comment_description {
+  my $topic = shift @_;
+  my $href = shift @_;
+  
+  my $comment_count = &number_of_comments_for($topic);
+  if(param('action') eq 'view' or $comment_count eq 0) {
+    return "";
+  }
+  $text = "comments"; 
+  $text = "comment" if $comment_count eq 1;
+  if ($href) {
+    $href = $href . "#comments";
+  } else {
+    $href = "#";
+  }
+  return "<a class='count' href='$href'>$comment_count $text</a>";
+}
+
+sub number_of_comments_for {
+  my $topic = shift @_;
+  my $count = 0;
+  my $comment_dir = "$SID/$COMMENT_DIR/$topic";
+  return 0 unless -e $comment_dir and -d $comment_dir;
+  opendir( COMMENT_DIR, $comment_dir )
+    or die "Error: cannot open $comment_dir: $!\n";
+  while( my $author = readdir(COMMENT_DIR)) {
+    next if($author =~ /^\./);
+    my $author_dir = "$comment_dir/$author";
+    $count += `ls -A "$author_dir" | wc -l`;
+    debug("Adding count $count");
+  }
+  close COMMENT_DIR;
+  return $count;
 }
 
 sub simplestore_data_to {

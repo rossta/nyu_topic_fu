@@ -101,6 +101,14 @@ h3.version {
   margin: 0 0 .5em;
   border-bottom: 1px dotted #cccccc;
 }
+#sidebar_topics a.count {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 65%;
+}
+#sidebar_topics a.count:hover {
+  text-decoration: underline;
+}
 #sidebar_topics ul {
   padding: 0;
   margin: 0;

@@ -192,10 +192,9 @@ sub show_view {
 }
 
 sub show_comments {
-  
   if (my @comment_files = &comments_on($topic)) {
     @comment_files = &sorted_timestamp_file_list(@comment_files);
-    print "<h4>Comments</h4>";
+    print "<h4 name='comments'>Comments</h4>";
     print "<ul id='comments'>";
     foreach $file (@comment_files) {
       if ( -e $file && -f $file) {
