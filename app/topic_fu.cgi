@@ -212,12 +212,13 @@ sub show_comments {
         printf li({-class => "comment" }, 
           "<p class='author'><span>$name</span> says </p>",
           &html_format($comment),
+          "<hr />",
+          a({}, "Delete this comment"),
           "<p class='date'>$date</p>");
       }
     }
     print "</ul>";
   } else {
-    debug("No COMMENTS!!!!");
     print p({-class => 'blank_slate'}, "Be the first to post a comment!");
   }
 }

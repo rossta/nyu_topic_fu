@@ -10,4 +10,5 @@ $HOME_URL = "topic_fu";
 $HOME_DIR = &home_dir;
 $STORE = "$HOME_DIR/.simplestore";
 $ENV{'PATH'} = "$HOME_DIR/bin:$ENV{'PATH'}";
+$IMAGE_TAG = "___IMAGE___";
 

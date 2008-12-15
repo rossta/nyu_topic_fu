@@ -23,31 +23,31 @@ describe "preview" do
   end
   
   describe "html lists" do
-    it "should convert 'here's a list:\r\n- item 1\r\n- item 2\r\nrest' to an unordered list'" do
-      params = { "topic" => "politics", "content" => "here's a list:\r\n- item 1\r\n- item 2\r\nrest", "action" => "preview" }
+    it "should convert 'here's a list:\r\n[\r\n- item 1\r\n- item 2\r\nrest' to an unordered list'" do
+      params = { "topic" => "politics", "content" => "here's a list:\r\n[\r\n- item 1\r\n- item 2\r\n]\r\nrest", "action" => "preview" }
       html = "here's a list:<ul><li>item 1</li><li>item 2</li></ul>rest"
       preview_response(params).should == html
     end
 
     it "should convert 'here's a list:\r\n- item 1\r\n- last item' to an unordered list where list is at end of post" do
-      params = { "topic" => "politics", "content" => "here's a list:\r\n- item 1\r\n- last item", "action" => "preview" }
+      params = { "topic" => "politics", "content" => "here's a list:\r\n[\r\n- item 1\r\n- last item\r\n]", "action" => "preview" }
       html = "here's a list:<ul><li>item 1</li><li>last item</li></ul>"
       preview_response(params).should == html
     end
     
     it "should convert multiple unordered lists" do
-      params = { "topic" => "politics", "content" => "list 1:\r\n- item 1\r\n- item 2\r\nlist 2:\r\n- item 3\r\n- item 4\r\n", "action" => "preview" }
+      params = { "topic" => "politics", "content" => "list 1:\r\n[\r\n- item 1\r\n- item 2\r\n]\r\nlist 2:\r\n[\r\n- item 3\r\n- item 4\r\n]\r\n", "action" => "preview" }
       html = "list 1:<ul><li>item 1</li><li>item 2</li></ul>list 2:<ul><li>item 3</li><li>item 4</li></ul>"
       preview_response(params).should == html
     end
     
-    it "should convert 'here's a list:\r\n1. item a\r\n2. item b\r\nrest' to an ordered list'" do
-      params = { "topic" => "politics", "content" => "here's a list:\r\n1. item a\r\n2. item b\r\nrest", "action" => "preview" }
+    it "should convert 'here's a list:\r\n{\r\n1. item a\r\n2. item b\r\nrest' to an ordered list'" do
+      params = { "topic" => "politics", "content" => "here's a list:\r\n{\r\n- item a\r\n- item b\r\n}\r\nrest", "action" => "preview" }
       html = "here's a list:<ol><li>item a</li><li>item b</li></ol>rest"
       preview_response(params).should == html
     end
     it "should convert unordered and ordered lists properly" do
-      params = { "topic" => "politics", "content" => "Text\r\n1. item a\r\n2. item b\r\nText\r\n- item c\r\n- item d", "action" => "preview" }
+      params = { "topic" => "politics", "content" => "Text\r\n{\r\n- item a\r\n- item b\r\n}\r\nText\r\n[\r\n- item c\r\n- item d\r\n]", "action" => "preview" }
       html = "Text<ol><li>item a</li><li>item b</li></ol>Text<ul><li>item c</li><li>item d</li></ul>"
       preview_response(params).should == html
     end
@@ -56,8 +56,14 @@ describe "preview" do
 
   describe "image links" do
     it "should convert an !image link! to an image on view" do
-      params = { "topic" => "politics", "content" => "Here is an image !#{IMAGE_URL}!.", "action" => "preview" }
+      params = { "topic" => "politics", "content" => "Here is an image ! #{IMAGE_URL} !.", "action" => "preview" }
       preview_response(params).should =~ /<img.*src=\"#{IMAGE_URL}\".*\/>/
+    end
+
+    it "should convert an !image link! with underscores to an image on view" do
+      image_url = "http://www.bjork.fr/IMG/jpg/_040_828_Bjork_newsweek.jpg"
+      params = { "topic" => "politics", "content" => "image ! #{image_url} !.", "action" => "preview" }
+      preview_response(params).should == "image <img src=\"#{image_url}\" \/>."
     end
   end
   

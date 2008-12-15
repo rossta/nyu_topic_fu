@@ -158,6 +158,26 @@ a.nav_link:hover {
   background: #99ff66;
 }
 #search_results_list span {
+  font-size: 70%;
+}
+#comments {
+  list-style-type:none;
+  padding: 0;
+}
+#comments .comment {
+  font-size: 75%;
+  padding: 10px;
+  -moz-border-radius: 10px;
+  background: #efefef;
+  border: 2px solid #cccccc;
+  margin-bottom: 1em;
+}
+#comments .comment .author {
+  margin-top: 0;
+  font-weight: bold;
+}
+#comments .comment .date {
+  margin-bottom: 0;
   font-size: 75%;
 }
 #main #comment_form {

@@ -159,35 +159,56 @@ sub html_format {
   my %escape = ('&' => '&amp;', '<' => '&lt;', '>' => '&gt;');
   my $replace = join '', keys %escape;
   s/([$replace])/$escape{$1}/g;
-  s/^\r[\n]?$/<p>/gm;
-  s/^---\+ ([^\r\n]*)/<h1>$1<\/h1>/gm;
-  s/^---\+\+ ([^\r\n]*)/<h2>$1<\/h2>/gm;
-  s/^---\+\+\+ ([^\r\n]*)/<h3>$1<\/h3>/gm;
-  s/\*([^\*]*)\*/<b>$1<\/b>/gm;
-  s/_([^_]*)_/<i>$1<\/i>/gm;
-  s/\!([^\!]*)\!/<img src="$1" \/>/gm;
-  $_ = &bulleted_lists($_);
-  s/[\r\n]*//gm;
-  $_ = &link_topics($_);
-  return $_;
-}
-sub bulleted_lists {
-  my $html = shift @_;
-  $html =~ s/\r\n- ([^\r\n]*)/<li>$1<\/li>/g;
-  $html =~ s/(<li>.*<\/li>)[^<]?/<ul>$1<\/ul>/g;
-  $html =~ s/\r\n[0-9]+\. ([^\r\n]*)/<li>$1<\/li>/g;
-  $html =~ s/([^>])(<li>.*<\/li>)[^<]?/$1<ol>$2<\/ol>/g;
-  return $html;
-}
-sub link_topics {
-  my $html = shift @_;
-  @topics = `ls $SID/$TOPIC_DIR`;
-  foreach(@topics) {
-    chomp($_);
-    my $href = &view_path($_);
-    $html =~ s/$_/<a href="$href">$_<\/a>/gm;
+
+  @lines = split(/\r\n/, $_);
+  @image_list = &grep_for_images(@lines);
+  debug("images: @image_list");
+  
+  foreach(@lines) {
+    s/^---\+ (.*)$/<h1>$1<\/h1>/gm;
+    s/^---\+\+ (.*)$/<h2>$1<\/h2>/gm;
+    s/^---\+\+\+ (.*)$/<h3>$1<\/h3>/gm;
+    s/\*([^\*]*)\*/<b>$1<\/b>/gm;
+    s/_([^_]*)_/<i>$1<\/i>/gm;
+    s/\! (.*) \!/$IMAGE_TAG/gm;
+    s/^- (.*)$/<li>$1<\/li>/gm;
+    s/^\[$/<ul>/gm;
+    s/^\]$/<\/ul>/gm;
+    s/^\{$/<ol>/gm;
+    s/^\}$/<\/ol>/gm;
+    s/^- (.*)$/<li>$1<\/li>/gm;
+    s/^$/<p>/gm;
   }
-  return $html;
+  
+  @lines = &link_topics(@lines);
+  foreach (@lines) {
+    if(/___IMAGE___/) {
+      my $image_src = shift @image_list;
+      s/___IMAGE___/<img src='$image_src' \/>/i; 
+    }
+  }
+  return join("", @lines);
+}
+
+sub grep_for_images {
+  my @images = grep { /\!.*\!/ } @_;
+  foreach (@images) {
+    s/(.*)\! (.*) \!(.*)/$2/;
+  }
+  return @images;
+}
+
+sub link_topics {
+  my @lines = @_;
+  my @topics = `ls $SID/$TOPIC_DIR`;
+  foreach $topic (@topics) {
+    chomp($topic);
+    foreach $line (@lines) {
+      my $href = &view_path($topic);
+      $line =~ s/($topic)/<a href="$href">$1<\/a>/gm;
+    }
+  }
+  return @lines;
 }
 
 sub file_data {
@@ -298,7 +319,6 @@ sub number_of_comments_for {
     next if($author =~ /^\./);
     my $author_dir = "$comment_dir/$author";
     $count += `ls -A "$author_dir" | wc -l`;
-    debug("Adding count $count");
   }
   close COMMENT_DIR;
   return $count;
