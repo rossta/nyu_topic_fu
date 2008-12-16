@@ -9,6 +9,7 @@ body{
   margin:10px auto;
 }
 #main{
+  position: relative;
   width:675px;
   padding: 16px;
   background-color:#fff;
@@ -204,4 +205,21 @@ a.nav_link:hover {
 #main .view_nav {
   text-align: left;
   height: 30px;
+}
+#main #user_status {
+  font-size: 60%;
+  width: 38%;
+  position: absolute;
+  right: 20px;
+}
+
+#main #user_status p {
+  float: left;
+  margin: 0 10px 0 0;
+}
+#main #user_status a {
+  text-decoration: none;
+}
+#main #user_status a:hover {
+  text-decoration: underline;
 }

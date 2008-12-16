@@ -71,12 +71,12 @@ describe "create" do
       response_post(".flash", @params).should == "Topic 'abc' saved successfully!"
 
       @params["action"] = "view"
-      response_post("div.content", @params).should == "It's the first topic post."
+      response_post("div.content", @params).should == "It's the first topic post.\n"
     end
     
     it "should preserve <p> tags in view" do
-      params = { "topic" => "abc", "content" => "Title\r\n\r\nI should be in a p tag.\r\n\r\nI should also be in a p tag\r\n", "action" => "preview" }
-      html = "Title<p>I should be in a p tag.</p><p>I should also be in a p tag</p>"
+      params = { "topic" => "abc", "content" => "Title\r\n\r\nI should be in a p tag.\r\n\r\nI should also be in a p tag", "action" => "preview" }
+      html = "Title<p>I should be in a p tag.</p><p>I should also be in a p tag\n</p>"
       preview_response(params).should == html
       
       params["action"] = 'create'

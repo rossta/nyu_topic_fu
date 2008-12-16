@@ -6,9 +6,18 @@ require "helper.pl";
 
 use CGI qw(-debug :standard);
 
-print header("text/html");
+my $user = cookie('user');
+my $email = cookie('email');
+if(defined $user and verify($user, $email)) {
+  $user_cookie = cookie(-name => 'user', -value => $user);
+  $email_cookie = cookie(-name => 'email', -value => $email);
+} else {
+  print redirect(-uri => &logout_path);
+}
 
-my ($file);
+print header(-type => "text/html", -cookie => [$user_cookie, $email_cookie]);
+
+my $file;
 my $query = CGI::->new();
 my $action = &get_action;
 my $topic = &get_topic_and_validate;
@@ -253,13 +262,6 @@ sub comments_on {
   close COMMENT_DIR;
   return @comment_file_list;
   
-}
-sub show_flash {
-  if($FLASH) {
-    print p({-class => "flash"},
-      $FLASH,
-    );
-  }
 }
 
 sub comment_form {

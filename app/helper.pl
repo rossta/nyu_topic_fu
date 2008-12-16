@@ -89,14 +89,25 @@ sub page_title {
   my ($crumb);
   unless ($page_title eq 'HOME') { $crumb = ": <span id='page'>$page_title</span>"; }
   print div({-id => "wrapper"});
-  &search_html;
-  if($page_title eq 'VIEW') {
-    &sidebar_topics("Previous  Revisions", &previous_revisions(param('topic')))
-  } else {
-    &sidebar_topics("Recent Updates", &recent_topics(5)); 
+  
+  unless ($page_title eq 'LOG IN') {
+    &search_html;
+    if($page_title eq 'VIEW') {
+      &sidebar_topics("Previous  Revisions", &previous_revisions(param('topic')))
+    } else {
+      &sidebar_topics("Recent Updates", &recent_topics(5)); 
+    }
   }
   
   print div({-id => "main"});
+  
+  unless ($page_title eq 'LOG IN') {
+    print "<div id='user_status'>";
+    print p("Welcome back, " . cookie('user'));
+    print a({-href => &logout_path}, "Log out");
+    print "</div>";
+  }
+  
   print h1(a({-href=>$HOME_URL}, "TOPIC_FU"), $crumb);
   if ($page_title eq 'HOME') {
     print h2({-class => "page_title"}, "Choose a topic");
@@ -294,8 +305,10 @@ sub comment_description {
   my $href = shift @_;
   
   my $comment_count = &number_of_comments_for($topic);
-  if(param('action') eq 'view' or $comment_count eq 0) {
-    return "";
+  if(param('action')) {
+    if(param('action') eq 'view' or $comment_count eq 0) {
+      return "";
+    }
   }
   $text = "comments"; 
   $text = "comment" if $comment_count eq 1;
@@ -342,8 +355,20 @@ sub open_file {
     or die "Error: cannot open $file: $!\n";
 }
 
+sub show_flash {
+  if($FLASH) {
+    print p({-class => "flash"},
+      $FLASH,
+    );
+  }
+}
 
 #Routes
+
+sub logout_path {
+  my $base_url = url(-base => 1);
+  return "$base_url/cgi-bin/topic_login?logout=1";
+}
 sub view_path {
   my $file = shift @_;
   my $timestamp = shift @_;
@@ -360,4 +385,18 @@ sub edit_path {
 
 sub debug {
   warn "@_" if $DEBUG;
+}
+
+sub verify {
+  my ($user, $email) = @_;
+  my $file_key = "$SID/$USER_DIR/$email";
+  if(-e $file_key and -r $file_key) {
+    &open_file($file_key, USER_FILE);
+    while(<USER_FILE>) {
+      chomp;
+      return $user eq $_;
+    }
+  } else {
+    return 0;
+  }
 }
