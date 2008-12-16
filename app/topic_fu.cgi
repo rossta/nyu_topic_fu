@@ -28,6 +28,7 @@ if($page eq 'HOME') {
 } elsif ($page eq 'VIEW') {
   &show_view;
   &view_nav;
+  &revision_select_form;
   &comment_form;
   &show_comments;
   &back_button;
@@ -38,6 +39,9 @@ if($page eq 'HOME') {
   &show_preview;
   &preview_form;
   &back_button('edit', "<< Cancel and go back");
+} elsif ($page eq 'COMPARE') {
+  &show_comparison;
+  &back_button('view');
 }
 print "<div style='clear:left'></div>";
 print "</div>";
@@ -94,6 +98,8 @@ sub page_redirect {
     } else {
       $FLASH = "Gotta type your comment to add your comment!";
     }
+  } elsif ($p eq 'COMPARE') {
+    $topic = 'Compare'
   }
   return $p;
 }
@@ -213,7 +219,7 @@ sub show_comments {
           "<p class='author'><span>$name</span> says </p>",
           &html_format($comment),
           "<hr />",
-          a({}, "Delete this comment"),
+          # a({-href => ''}, "Delete this comment"),
           "<p class='date'>$date</p>");
       }
     }
@@ -295,6 +301,42 @@ sub view_nav {
   } else {
     print a({-href => &edit_path($topic), -class => 'nav_link'}, "Edit topic");
     print a({-href => '#', -class => 'nav_link add_comment'}, "Add comment");
+    print a({-href => '#', -class => 'nav_link compare'}, "Compare");
   }
   print "</div>";
 }
+
+sub revision_select_form {
+  param('action', 'compare');
+  print "<div id='revision_select_form'>";
+  print start_form,
+    hidden(-name=>'action', ),
+    hidden(-name=>'revision'),
+    hidden(-name=>'topic', -default=>[param('topic')]);
+    
+    my @values = revisions_for_topic(param('topic'));
+    my %labels;
+    foreach $value (@values) {
+      $value =~ s/.*\/([0-9]*)$/$1/g;
+      debug("value $value");
+      $labels{$value} = &time_format($value);
+    }
+    print popup_menu(-name => 'revision_2', -values => \@values, -labels => \%labels);
+    print span({-class => "compare"}, submit("Compare")), 
+    end_form;
+  print "</div>";
+}
+
+sub show_comparison {
+  my $compare_topic = param('topic');
+  my($file_1, $file_2);
+  if(param('revision')) {
+    $file_1 = &revision_for($compare_topic, param('revision')); 
+  } else {
+    $file_1 = &most_recent_file_for($compare_topic); 
+  }
+  $file_2 = &revision_for($compare_topic, param('revision_2'));
+  my @diff = `diff \"$file_1\" \"$file_2\"`;
+  print join("<br/>", @diff);
+}
+

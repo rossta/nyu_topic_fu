@@ -162,7 +162,6 @@ sub html_format {
 
   @lines = split(/\r\n/, $_);
   @image_list = &grep_for_images(@lines);
-  debug("images: @image_list");
   
   foreach(@lines) {
     s/^---\+ (.*)$/<h1>$1<\/h1>/gm;
@@ -339,7 +338,6 @@ sub simplestore_data_to {
 sub open_file {
   my $file = shift @_;
   my $file_handle = shift @_ || CONTENT;
-  warn "opening file: $file";
   open( $file_handle, $file )
     or die "Error: cannot open $file: $!\n";
 }
