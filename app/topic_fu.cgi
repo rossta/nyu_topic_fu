@@ -270,13 +270,8 @@ sub comment_form {
   print start_form,
     hidden(-name=>'action'),
     hidden(-name=>'topic', -default=>[param('topic')]),
-    "<table><tr>",
-    "<td>",
-    label("Name"),
-    "</td>",
-    "<td>",
-    textfield({-name => 'name', -class => 'text'}),
-    "</td></tr><tr><td>",
+    hidden(-name => 'name', -default => [cookie('user')]),
+    "<table><tr><td>",
     label("Comment"),
     "</td>",
     "<td>".
@@ -324,7 +319,7 @@ sub revision_select_form {
       $labels{$value} = &time_format($value);
     }
     print popup_menu(-name => 'revision_2', -values => \@values, -labels => \%labels);
-    print span({-class => "compare"}, submit("Compare")), 
+    print span({-class => "compare"}, submit("Go")), 
     end_form;
   print "</div>";
 }

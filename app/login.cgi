@@ -10,9 +10,10 @@ my ($user_cookie, $email_cookie);
 if(param('logout')) {
   $user_cookie = cookie(-name => 'user', -value => "");
   $email_cookie = cookie(-name => 'email', -value => "");
-  print redirect(-uri => self_url(), -cookie => [$user_cookie, $email_cookie]);
-} else {
-  $FLASH = 'You are currently logged out.'
+  print redirect(-uri => "$base_url/cgi-bin/topic_login?refresh=1", -cookie => [$user_cookie, $email_cookie]);
+} elsif(param('refresh')) {
+  param('refresh', 0);
+  $FLASH = 'You have successfully logged out.';
 }
 my $base_url = url(-base => 1);
 my $user = param('user');

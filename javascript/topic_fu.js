@@ -12,6 +12,18 @@ $(function(){
     return false;
   });
   
+  $('a.compare').click(function(){
+    var form = $('#revision_select_form');
+    form.toggleClass('visible').toggle('slow', function(){
+      if(form.hasClass('visible')) {
+        $('a.compare').text('Hide menu');
+      } else {
+        $('a.compare').text('Compare');
+      }
+    });
+    return false;
+  });
+  
   $('a.delete').click(function(){
     confirm("Are you sure you want to delete?");
   });

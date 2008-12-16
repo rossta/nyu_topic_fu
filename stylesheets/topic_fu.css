@@ -208,7 +208,7 @@ a.nav_link:hover {
 }
 #main #user_status {
   font-size: 60%;
-  width: 38%;
+  width: 38 %;
   position: absolute;
   right: 20px;
 }
@@ -222,4 +222,14 @@ a.nav_link:hover {
 }
 #main #user_status a:hover {
   text-decoration: underline;
+}
+
+#revision_select_form {
+  position: relative;
+}
+
+#revision_select_form form {
+  position: absolute;
+  right: 35px;
+  top: -30px;
 }
