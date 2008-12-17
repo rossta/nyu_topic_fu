@@ -373,7 +373,7 @@ sub show_comparison {
       join("<br/>", @diff),
       "</p>";
   } else {
-    print "<p>The two files are identical.</p>";
+    print "<p>You selected the same file.</p>";
   }
 }
 

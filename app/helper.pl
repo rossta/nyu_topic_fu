@@ -321,16 +321,13 @@ sub show_flash {
 
 #Routes
 sub fu_path {
-  return &cgi_path."/topic_fu";
-}
-sub base_url {
-  return url(-base =>1);
+  return &cgi_path."/topic_fu.cgi";
 }
 sub cgi_path {
-  return &base_url."/cgi-bin";
+  return $CGI_URL;
 }
 sub login_path {
-  return &cgi_path."/topic_login";
+  return &cgi_path."/topic_login.cgi";
 }
 sub logout_path {
   return &login_path . "?logout=1";
