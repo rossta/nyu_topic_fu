@@ -13,6 +13,7 @@ my $email = cookie('email');
 if(defined $user and verify($user, $email)) {
   $user_cookie = cookie(-name => 'user', -value => $user);
   $email_cookie = cookie(-name => 'email', -value => $email);
+  $FLASH = "Welcome to Topic Fu!" if param('new_user');
 } else {
   print redirect(-uri => &login_path);
 }
@@ -288,7 +289,7 @@ sub comment_form {
 
 sub back_link {
   my $text = $_[0] || "Cancel and go back";
-  my $href = $_[1] || $HOME_URL;
+  my $href = $_[1] || &fu_path;
   print a({-href=>$href, -class=>'back'}, $text);
 }
 

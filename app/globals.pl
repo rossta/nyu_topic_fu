@@ -7,7 +7,6 @@ $INDEX_DIR = param('test_index_dir') || "index";
 $COMMENT_DIR = param('test_comment_dir') || "comments";
 $USER_DIR = param('test_user_dir') || "user";
 $PUBLIC_DIR = "/public";
-$HOME_URL = "topic_fu";
 $HOME_DIR = &home_dir;
 $STORE = "$HOME_DIR/.simplestore";
 $ENV{'PATH'} = "$HOME_DIR/bin:$ENV{'PATH'}";

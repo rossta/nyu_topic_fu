@@ -24,6 +24,11 @@ $(function(){
     return false;
   });
   
+  $('#teasers a').click(function(){
+    alert('Wait a minute! You gotta sign up first!');
+    return false;
+  });
+  
   $('a.delete').click(function(){
     confirm("Are you sure you want to delete?");
   });

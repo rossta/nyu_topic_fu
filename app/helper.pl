@@ -60,31 +60,6 @@ sub revisions_for_topic {
   return @topic_list;
 }
 
-
-sub search_html {
-  print "<div id='search_form' class='go_box sidebar'>";
-  print start_form(-method=>"GET", -action=>'topic_search'),
-    h4("Search"),
-    textfield({-style => "font-size:75%", -class=> 'text',-name => 'term', -value => param('term')}),
-    span({-class => "submit"},
-      submit("Go"),
-    ),
-  end_form;
-  print "</div>";
-}
-
-sub welcome_html {
-  print "<div id='signup_box' class='go_box sidebar'>";
-  print start_form(-method=>"GET", -action=>'topic_search'),
-    h4("Search"),
-    textfield({-style => "font-size:75%", -class=> 'text',-name => 'term', -value => param('term')}),
-    span({-class => "submit"},
-      submit("Go"),
-    ),
-  end_form;
-  print "</div>";
-}
-
 sub page_start {
   print start_html( -title    => "Unix Tools: Final Assignment, Topic Fu", 
           -style     => {-src => "$PUBLIC_DIR/stylesheets/topic_fu.css"},
@@ -106,7 +81,7 @@ sub page_title {
   
   &user_status;
   
-  print h1(a({-href=>$HOME_URL}, "TOPIC_FU"), $crumb);
+  print h1(a({-href=>&fu_path}, "TOPIC_FU"), $crumb);
 
   &page_header($page_title, $page_topic);
   
@@ -287,13 +262,11 @@ sub topic_list_items_for {
 sub comment_description {
   my $topic = shift @_;
   my $href = shift @_;
+  return "" if (param('action') and param('action') eq 'view');
   
   my $comment_count = &number_of_comments_for($topic);
-  if(param('action')) {
-    if(param('action') eq 'view' or $comment_count eq 0) {
-      return "";
-    }
-  }
+  return "" if($comment_count eq 0);
+  
   $text = "comments"; 
   $text = "comment" if $comment_count eq 1;
   if ($href) {
@@ -323,7 +296,7 @@ sub number_of_comments_for {
 sub simplestore_data_to {
   my $dir = shift @_;
   my $data = shift @_;
-  
+
   my $time = time;
   my $file_key = "$SID/$dir/$time";
   my $store_cmd = "simplestore write \"$file_key\" \"$data\"";
@@ -348,19 +321,28 @@ sub show_flash {
 }
 
 #Routes
-
+sub fu_path {
+  return &cgi_path."/topic_fu";
+}
+sub base_url {
+  return url(-base =>1);
+}
+sub cgi_path {
+  return &base_url."/cgi-bin";
+}
 sub login_path {
-  my $base_url = url(-base => 1);
-  return "$base_url/cgi-bin/topic_login";
+  return &cgi_path."/topic_login";
 }
 sub logout_path {
-  my $base_url = url(-base => 1);
   return &login_path . "?logout=1";
+}
+sub signup_path {
+  return &login_path."?signup=1";
 }
 sub view_path {
   my $file = shift @_;
   my $timestamp = shift @_;
-  my $url = "$HOME_URL?action=view&topic=$file";
+  my $url = &fu_path."?action=view&topic=$file";
   if (param('action') and (param('action') eq 'edit' or param('action') eq 'view')) {
     $url = $url . "&revision=$timestamp" if $timestamp;
   }
@@ -368,7 +350,7 @@ sub view_path {
 }
 sub edit_path {
   my $file = shift @_;
-  return "$HOME_URL?action=edit&topic=$file";
+  return &fu_path."?action=edit&topic=$file";
 }
 
 sub debug {
