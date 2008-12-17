@@ -1,8 +1,6 @@
 #!/usr/bin/perl -w
 
 require "globals.pl";
-# require "file_helper.pl";
-# require "html_helper.pl";
 
 use POSIX qw(strftime);
 
@@ -64,7 +62,19 @@ sub revisions_for_topic {
 
 
 sub search_html {
-  print "<div id='search_form'>";
+  print "<div id='search_form' class='go_box sidebar'>";
+  print start_form(-method=>"GET", -action=>'topic_search'),
+    h4("Search"),
+    textfield({-style => "font-size:75%", -class=> 'text',-name => 'term', -value => param('term')}),
+    span({-class => "submit"},
+      submit("Go"),
+    ),
+  end_form;
+  print "</div>";
+}
+
+sub welcome_html {
+  print "<div id='signup_box' class='go_box sidebar'>";
   print start_form(-method=>"GET", -action=>'topic_search'),
     h4("Search"),
     textfield({-style => "font-size:75%", -class=> 'text',-name => 'term', -value => param('term')}),
@@ -90,41 +100,15 @@ sub page_title {
   unless ($page_title eq 'HOME') { $crumb = ": <span id='page'>$page_title</span>"; }
   print div({-id => "wrapper"});
   
-  unless ($page_title eq 'LOG IN') {
-    &search_html;
-    if($page_title eq 'VIEW') {
-      &sidebar_topics("Previous  Revisions", &previous_revisions(param('topic')))
-    } else {
-      &sidebar_topics("Recent Updates", &recent_topics(5)); 
-    }
-  }
+  &app_sidebar($page_title);
   
   print div({-id => "main"});
   
-  unless ($page_title eq 'LOG IN') {
-    print "<div id='user_status'>";
-    print p("Welcome back, " . cookie('user'));
-    print a({-href => &logout_path}, "Log out");
-    print "</div>";
-  }
+  &user_status;
   
   print h1(a({-href=>$HOME_URL}, "TOPIC_FU"), $crumb);
-  if ($page_title eq 'HOME') {
-    print h2({-class => "page_title"}, "Choose a topic");
-  } elsif ($page_title eq 'SEARCH') {
-    print h2({-class => "page_title"}, "Search Results");
-  } else {
-    print h2({-class => "page_title"}, $page_topic);
-    if($page_title eq 'VIEW') {
-      my $revision;
-      if(param('revision')) {
-        $revision = &time_format(param('revision'), "%l:%M:%S %p %b %d, %Y");
-      }else{
-        $revision = "Latest";
-      }
-      print h3({-class => "version"}, "Version: $revision");
-    }
-  }
+
+  &page_header($page_title, $page_topic);
   
   print "<hr/>";
 }
@@ -262,7 +246,7 @@ sub warn_params {
 sub sidebar_topics {
   my $text = shift @_;
   @recent = @_;
-  print div({-id => "sidebar_topics"},
+  print div({-id => "sidebar_topics", -class => 'activity_box sidebar'},
     h4($text),
     ul("@recent"),
   );
@@ -365,9 +349,13 @@ sub show_flash {
 
 #Routes
 
+sub login_path {
+  my $base_url = url(-base => 1);
+  return "$base_url/cgi-bin/topic_login";
+}
 sub logout_path {
   my $base_url = url(-base => 1);
-  return "$base_url/cgi-bin/topic_login?logout=1";
+  return &login_path . "?logout=1";
 }
 sub view_path {
   my $file = shift @_;

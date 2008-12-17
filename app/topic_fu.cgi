@@ -2,7 +2,9 @@
 # Author: Ross Kaffenberger;
 # SID: N19663559;
 # URL: http://cs.nyu.edu/~rk1023/cgi-bin/unixtool/topic_fu
+
 require "helper.pl";
+require "app_helper.pl";
 
 use CGI qw(-debug :standard);
 
@@ -12,7 +14,7 @@ if(defined $user and verify($user, $email)) {
   $user_cookie = cookie(-name => 'user', -value => $user);
   $email_cookie = cookie(-name => 'email', -value => $email);
 } else {
-  print redirect(-uri => &logout_path);
+  print redirect(-uri => &login_path);
 }
 
 print header(-type => "text/html", -cookie => [$user_cookie, $email_cookie]);
@@ -337,3 +339,22 @@ sub show_comparison {
   print join("<br/>", @diff);
 }
 
+sub page_header {
+  my $page_title = shift @_;
+  my $page_topic = shift @_;
+  
+  if ($page_title eq 'HOME') {
+    print h2({-class => "page_title"}, "Choose a topic");
+  } else {
+    print h2({-class => "page_title"}, $page_topic);
+    if($page_title eq 'VIEW') {
+      my $revision;
+      if(param('revision')) {
+        $revision = &time_format(param('revision'), "%l:%M:%S %p %b %d, %Y");
+      }else{
+        $revision = "Latest";
+      }
+      print h3({-class => "version"}, "Version: $revision");
+    }
+  }
+}

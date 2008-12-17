@@ -82,7 +82,7 @@ h3.version {
   color:#660099;
   font-size: 100%;
 }
-#search_form, #sidebar_topics {
+.sidebar {
   border:2px solid #999;
   padding: 10px;
   font-size: 80%;
@@ -92,53 +92,52 @@ h3.version {
   float:right;
   -moz-border-radius: 10px;
 }
-#sidebar_topics {
+.activity_box {
   clear:right;
   margin-top: 10px;
 }
-#search_form h4,
-#sidebar_topics h4 {
+.sidebar h4 {
   color: #ffff00;
   margin: 0 0 .5em;
   border-bottom: 1px dotted #cccccc;
 }
-#sidebar_topics a.count {
+.activity_box a.count {
   color: #ffffff;
   text-decoration: none;
   font-size: 65%;
 }
-#sidebar_topics a.count:hover {
+.activity_box a.count:hover {
   text-decoration: underline;
 }
-#sidebar_topics ul {
+.activity_box ul {
   padding: 0;
   margin: 0;
   list-style-position: outside;
   list-style-type:none;
 }
-#sidebar_topics li  {
+.activity_box li  {
   margin-bottom: 0.5em;
 }
-#sidebar_topics a.topic_title {
+.activity_box a.topic_title {
   margin: 0 0 .5em;
   color: white;
   font-weight: bold;
   text-decoration: none;
 }
-#sidebar_topics a.topic_title:hover {
+.activity_box a.topic_title:hover {
   text-decoration: underline;
 }
-#sidebar_topics a.topic_title:visited {
+.activity_box a.topic_title:visited {
   color: #99ff33;
 }
-#sidebar_topics span {
+.activity_box span {
   font-size: 70%;
   color:#cccccc;
 }
-#search_form {
+.go_box {
   background-color:#11aa11;
 }
-#search_form input.text {
+.go_box input.text {
   margin-right:6px;
   width:154px;
 }
@@ -189,6 +188,9 @@ a.nav_link:hover {
 #main form .login {
   text-align: left;
   margin: 0 auto;
+}
+#main form .login td {
+  padding: 10px;
 }
 #main #comment_form {
   padding: 10px;

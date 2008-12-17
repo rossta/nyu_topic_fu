@@ -27,9 +27,7 @@ if(defined $user) {
   } else {
     $FLASH = "Invalid login. Try again";
   }
-} else {
-  
-}
+} 
 
 print header(-type => "text/html");
 
@@ -57,5 +55,23 @@ table({-class => "login" },
     )),
 end_form;
 print end_html;
+
+sub app_sidebar {
+  &signup_html;
+}
+
+sub signup_html {
+  print "hello";
+}
+
+sub user_status {
+  # no op
+}
+
+sub page_header {
+  my $page_title = shift @_;
+  my $page_topic = shift @_;
+  print h2({-class => "page_title"}, $page_topic);
+}
 
 

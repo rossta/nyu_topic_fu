@@ -3,6 +3,7 @@
 # SID: N19663559;
 
 require "helper.pl";
+require "app_helper.pl";
 
 use CGI qw(-debug :standard);
 
@@ -76,3 +77,6 @@ sub search_index_files_for {
   return %matching_files;
 }
 
+sub page_header {
+  print h2({-class => "page_title"}, "Search Results");
+}
