@@ -32,6 +32,7 @@ $(function(){
   $('a.delete').click(function(){
     confirm("Are you sure you want to delete?");
   });
+
   $(window).load(function(){
     setInterval(function() {
       $('p.flash').fadeOut('slow');

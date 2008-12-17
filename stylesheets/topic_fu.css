@@ -236,12 +236,18 @@ a.nav_link:hover {
 
 #revision_select_form {
   position: relative;
+  display:none;
 }
 
 #revision_select_form form {
   position: absolute;
-  right: 35px;
+  right: 0;
   top: -30px;
+}
+#revision_select_form label {
+  font-size: 55%;
+  color: black;
+  margin-right: 5px;
 }
 a.welcome_link {
   text-decoration: none;

@@ -58,6 +58,7 @@ sub search_index_files_for {
       debug("search term: $term");
       if ($name =~ /$term/) {
         $multiplier = $multiplier + $multiplier;
+        $score = $score + 1;
       }
       push(@line_matches, grep { /$term/g } <FILE>);
       if(@line_matches) {

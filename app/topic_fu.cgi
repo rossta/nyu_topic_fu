@@ -55,7 +55,7 @@ if($page eq 'HOME') {
   &back_button('edit', "<< Cancel and go back");
 } elsif ($page eq 'COMPARE') {
   &show_comparison;
-  &back_button('view');
+  &back_button('view', "<< Back to view");
 }
 print "<div style='clear:left'></div>";
 print "</div>";
@@ -308,7 +308,7 @@ sub comment_form {
     label("Comment"),
     "</td>",
     "<td>".
-    textarea({-name => 'comment', -rows => 5, -columns => 40 }),
+    textarea({-name => 'comment', -rows => 5, -columns => 56 }),
     "</td></tr><tr><td>&nbsp;</td><td>",
     span({-class => "comment"}, submit("Add"),),
     "</td></tr>",
@@ -351,6 +351,7 @@ sub revision_select_form {
       debug("value $value");
       $labels{$value} = &time_format($value);
     }
+    print label({-for => 'revision_2'}, "Revisions");
     print popup_menu(-name => 'revision_2', -values => \@values, -labels => \%labels);
     print span({-class => "compare"}, submit("Go")), 
     end_form;
@@ -367,7 +368,13 @@ sub show_comparison {
   }
   $file_2 = &revision_for($compare_topic, param('revision_2'));
   my @diff = `diff \"$file_1\" \"$file_2\"`;
-  print join("<br/>", @diff);
+  if(@diff) {
+    print "<p>",
+      join("<br/>", @diff),
+      "</p>";
+  } else {
+    print "<p>The two files are identical.</p>";
+  }
 }
 
 sub page_header {
