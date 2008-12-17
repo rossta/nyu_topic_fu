@@ -13,24 +13,26 @@ my $email = cookie('email');
 if(defined $user and verify($user, $email)) {
   $user_cookie = cookie(-name => 'user', -value => $user);
   $email_cookie = cookie(-name => 'email', -value => $email);
-  $FLASH = "Welcome to Topic Fu!" if param('new_user');
+  if (param('new_user')) {
+   $FLASH = "Welcome to Topic Fu, $user!"; 
+  } else {
+   $FLASH = "Welcome back, $user!"; 
+  }
 } else {
   print redirect(-uri => &login_path);
 }
-
-print header(-type => "text/html", -cookie => [$user_cookie, $email_cookie]);
-
 my $file;
 my $query = CGI::->new();
 my $action = &get_action;
 my $topic = &get_topic_and_validate;
 my $page = uc $action;
-
-&page_start;
 warn "sending to $page" if $DEBUG;
 &warn_params($query);
 $page = &page_redirect($page);
 warn "directing to $page" if $DEBUG;
+
+print header(-type => "text/html", -cookie => [$user_cookie, $email_cookie]);
+&page_start;
 &page_title($page, $topic);
 
 &show_flash;
@@ -93,14 +95,7 @@ sub page_redirect {
     $p = &view_redirect;
     my $comment = param('comment');
     if ($comment) {
-      my $name = param('name');
-      if($name) {
-        $name = lc $name;
-        $name =~ s/[,\/]//g;
-      } else {
-        $name = 'anonymous';
-      }
-      my $comment_dir = "$COMMENT_DIR/$topic/$name";
+      my $comment_dir = "$COMMENT_DIR/$topic/$email";
       my $file_key = &simplestore_data_to($comment_dir, $comment);
       if ( -e "$file_key") {
         $FLASH = "Your comment has been added"
@@ -110,6 +105,25 @@ sub page_redirect {
     } else {
       $FLASH = "Gotta type your comment to add your comment!";
     }
+  # }   elsif ($p eq 'DELETE') {
+  #   $p = &view_redirect;
+  #   
+  #   if (&current_user(param('email'))) {
+  #     my $file_to_delete = param('entry');
+  #     if ( -e $file_to_delete ) {
+  #       my $delete_cmd = "simplestore delete \"$file_to_delete\"";
+  #       warn "delete command: $delete_cmd" if $DEBUG;
+  #       `$delete_cmd`;
+  #       if (! -e $file_to_delete ) {
+  #         $FLASH = "Your comment has been deleted";
+  #       } else {
+  #         $FLASH = "No luck, your comment wasn't deleted";
+  #       }
+  #       my $flash_cookie = cookie(-name => 'flash', -value => $FLASH);
+  #       print redirect(-uri => &view_path, -cookie => $flash_cookie);
+  #     }
+  #   }
+  #   my $entry = param('entry');
   } elsif ($p eq 'COMPARE') {
     $topic = 'Compare'
   }
@@ -216,23 +230,24 @@ sub show_comments {
     print "<ul id='comments'>";
     foreach $file (@comment_files) {
       if ( -e $file && -f $file) {
-        my $name = $file;
+        my $email = $file;
         my $date = $file;
         $date =~ s/.*\/([^\/]*)$/$1/g;
         $date = &time_format($date);
-        $name =~ s/.*\/([^\/]*)\/.*$/$1/g;
+        $email =~ s/.*\/([^\/]*)\/.*$/$1/g;
         &open_file($file, COMMENT);
         my $comment = "";
         while(<COMMENT>) {
           $comment = $comment . $_;
         }
         close COMMENT;
-        printf li({-class => "comment" }, 
-          "<p class='author'><span>$name</span> says </p>",
-          &html_format($comment),
-          "<hr />",
-          # a({-href => ''}, "Delete this comment"),
-          "<p class='date'>$date</p>");
+        print "<li class = 'comment'>",
+          "<p class='author'><span>".&user_name_for($email)."</span> says </p>",
+          &html_format($comment);
+        print "<hr />";
+        # &delete_button($file, $email) if &current_user($email);
+        print "<p class='date'>$date</p>";
+        print "</li>";
       }
     }
     print "</ul>";
@@ -241,6 +256,20 @@ sub show_comments {
   }
 }
 
+# sub delete_button {
+#   my $entry = shift @_;
+#   my $author_email = shift @_;
+#   param('action', 'delete');
+#   param('entry', $entry);
+#   param('email', $author_email);
+#   print start_form,
+#     hidden(-name=>'action'),
+#     hidden(-name=>'topic', -default => $topic),
+#     hidden(-name=>'entry'),
+#     hidden(-name=>'email'),
+#     "<button class='delete'>Delete this comment</button>",
+#   end_form;
+# }
 sub comments_on {
   my $topic = shift @_;
   my @comment_file_list;
@@ -274,6 +303,7 @@ sub comment_form {
     hidden(-name=>'action'),
     hidden(-name=>'topic', -default=>[param('topic')]),
     hidden(-name => 'name', -default => [cookie('user')]),
+    hidden(-name => 'email', -default => [cookie('email')]),
     "<table><tr><td>",
     label("Comment"),
     "</td>",
@@ -310,7 +340,7 @@ sub revision_select_form {
   param('action', 'compare');
   print "<div id='revision_select_form'>";
   print start_form,
-    hidden(-name=>'action', ),
+    hidden(-name=>'action'),
     hidden(-name=>'revision'),
     hidden(-name=>'topic', -default=>[param('topic')]);
     

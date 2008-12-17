@@ -8,7 +8,6 @@ use CGI qw(-debug :standard);
 
 my ($user_cookie, $email_cookie);
 &logout_user;
-&signup_user;
 
 my $user = param('user');
 my $email = param('email');
@@ -17,13 +16,17 @@ my $new_user_param = "";
 my $action = param('action') || "new_session";
 
 if($action eq 'signup') {
-  &validate_email($email);
-  my $user_result = &create_user($email, $user);
-  if ( -e "$user_result") {
-    $new_user_param = "?new_user=1";
-    &redirect_home;
+  my $user_result;
+  if(&validate_email($email)) {
+    $user_result = &create_user($email, $user);
+    if ( -e "$user_result") {
+      $new_user_param = "?new_user=1";
+      &redirect_home;
+    } else {
+      $FLASH = "$user_result";
+    }
   } else {
-    $FLASH = "$user_result";
+    $FLASH = "C'mon. Please enter a valid email address";
   }
 } elsif ($action eq 'login') {
   if(defined $user) {
@@ -84,12 +87,12 @@ sub welcome_html {
   if (param('signup')) {
     print "<div id='welcome' class='go_box sidebar'>",
       h4("Already registered?"),
-      a({-href => &login_path }, "Log in to Topic Fu"),
+      a({-href => &login_path, -class => 'welcome_link' }, "Log in to Topic Fu"),
       "</div>";
   } else {
     print "<div id='welcome' class='go_box sidebar'>",
       h4("Need to signup?"),
-      a({-href => &signup_path }, "Register for Topic Fu"),
+      a({-href => &signup_path, -class => 'welcome_link' }, "Register for Topic Fu"),
       "</div>";
   }
 }
@@ -115,14 +118,13 @@ sub logout_user {
   }
 }
 
-sub signup_user {
-  if(param('action') and param('action') eq 'signup') {
-    $FLASH = "You're signing up!";
-  }
-}
-
 sub validate_email {
   my $email_attempt = shift @_;
+  if ($email_attempt =~ /^[A-Za-z0-9._%+-]+@[A-Za-z0-9._]+\.[A-Za-z]{2,4}$/) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 sub create_user {
@@ -132,7 +134,7 @@ sub create_user {
   
   return "An account for that email has already been taken" if ( -e $file_key );
 
-  my $store_cmd = "simplestore write \"$file_key\" \"$data\"";
+  my $store_cmd = "simplestore write \"$file_key\" \"$name\"";
   warn "store command: $store_cmd" if $DEBUG;
   `$store_cmd`;
   

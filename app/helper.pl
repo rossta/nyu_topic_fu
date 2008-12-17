@@ -313,10 +313,9 @@ sub open_file {
 }
 
 sub show_flash {
-  if($FLASH) {
-    print p({-class => "flash"},
-      $FLASH,
-    );
+  my $flash = $FLASH;
+  if($flash) {
+    print p({-class => "flash"},$flash);
   }
 }
 
@@ -359,14 +358,23 @@ sub debug {
 
 sub verify {
   my ($user, $email) = @_;
+  return $user eq &user_name_for($email);
+}
+
+sub user_name_for {
+  my $email = shift @_;
   my $file_key = "$SID/$USER_DIR/$email";
   if(-e $file_key and -r $file_key) {
     &open_file($file_key, USER_FILE);
     while(<USER_FILE>) {
       chomp;
-      return $user eq $_;
+      return $_;
     }
-  } else {
-    return 0;
   }
+  return "Anonymous";
+}
+
+sub current_user {
+  my $email = shift @_;
+  return (&user_name_for($email) eq cookie('user'));
 }

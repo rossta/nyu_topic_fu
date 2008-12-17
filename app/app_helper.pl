@@ -16,7 +16,7 @@ sub app_sidebar {
 
 sub user_status {
   print "<div id='user_status'>";
-  print p("Welcome back, " . cookie('user'));
+  print p("Hello, " . cookie('user')) unless param('new_user');
   print a({-href => &logout_path}, "Log out");
   print "</div>";
 }

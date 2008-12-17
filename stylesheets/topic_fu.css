@@ -182,8 +182,16 @@ a.nav_link:hover {
 }
 #comments .comment .delete {
   float:right;
-  font-size: 75%;
+  font-size: 65%;
   margin-top: 5px;
+  color: red;
+  text-decoration: none;
+  background: none;
+  border: none;
+}
+
+.delete:hover {
+  cursor: pointer;
 }
 #main form .login {
   text-align: left;
@@ -234,4 +242,13 @@ a.nav_link:hover {
   position: absolute;
   right: 35px;
   top: -30px;
+}
+a.welcome_link {
+  text-decoration: none;
+  color: #66ffff;
+  font-size: 75%;
+  font-weight: bold;
+}
+a.welcome_link:hover {
+  text-decoration: underline;
 }
