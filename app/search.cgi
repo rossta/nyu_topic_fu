@@ -22,19 +22,25 @@ my @terms = split(/ /, $term_param);
 my %files = &search_index_files_for(@terms);
 search_results_html(%files);
 
+&footer;
+
 print end_html;
 
 sub search_results_html {
   %matching_files = @_;
-  print "<ol id='search_results_list'>";
-  foreach $value (sort {$matching_files{$b} <=> $matching_files{$a} } keys %matching_files) {
-    my %file_data = &file_data(&most_recent_file_for($value));
-    print "<li>";
-    print a({-href=>$file_data{'href'},-class =>'topic_title'}, $file_data{'name'});
-    print span(" - Match score: $matching_files{$value}");
-    print "</li>";
+  if(%matching_files) {
+    print "<ol id='search_results_list'>";
+    foreach $value (sort {$matching_files{$b} <=> $matching_files{$a} } keys %matching_files) {
+      my %file_data = &file_data(&most_recent_file_for($value));
+      print "<li>";
+      print a({-href=>$file_data{'href'},-class =>'topic_title'}, $file_data{'name'});
+      print span(" - Match score: $matching_files{$value}");
+      print "</li>";
+    }
+    print "</ol>";
+  } else {
+    print "<p>No results for <strong>$term_param</strong>. Please try another search.</p>"
   }
-  print "</ol>";
 }
 
 sub search_index_files_for {

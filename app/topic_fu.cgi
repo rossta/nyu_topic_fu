@@ -15,7 +15,7 @@ if(defined $user and verify($user, $email)) {
   $email_cookie = cookie(-name => 'email', -value => $email);
   if (param('new_user')) {
    $FLASH = "Welcome to Topic Fu, $user!"; 
-  } else {
+  } elsif (param('returning')) {
    $FLASH = "Welcome back, $user!"; 
   }
 } else {

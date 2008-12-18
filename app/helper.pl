@@ -87,11 +87,7 @@ sub page_title {
   
   print "<hr/>";
 }
-sub footer {
-    # foreach $key (sort keys(%ENV)) {
-    #       warn "$key = $ENV{$key}";
-    #    }
-}
+
 sub get_topic_and_validate {
   if(param('action')) {
     if(param('topic')) {
@@ -202,7 +198,7 @@ sub sorted_timestamp_file_list {
 
 sub time_format {
   my $time = shift @_;
-  my $format = shift @_ || "%l:%M:%S %p %b %d, %Y";
+  my $format = shift @_ || "%l:%M:%S %p, %b %d, %Y";
   return strftime($format, localtime($time));
 }
 
@@ -374,4 +370,14 @@ sub user_name_for {
 sub current_user {
   my $email = shift @_;
   return (&user_name_for($email) eq cookie('user'));
+}
+
+sub footer {
+  print div({-id => 'footer'},
+    a({-href=> "#"}, "user guide"),
+    " | ",
+    a({-href=> "#"}, "developer guide"),
+    " | ",
+    a({-href=> &view_path('ross')}, "the author"),
+  );
 }

@@ -12,7 +12,7 @@ my ($user_cookie, $email_cookie);
 my $user = param('user');
 my $email = param('email');
 
-my $new_user_param = "";
+my $login_param = "?returning=1";
 my $action = param('action') || "new_session";
 
 if($action eq 'signup') {
@@ -20,7 +20,7 @@ if($action eq 'signup') {
   if(&validate_email($email)) {
     $user_result = &create_user($email, $user);
     if ( -e "$user_result") {
-      $new_user_param = "?new_user=1";
+      $login_param = "?new_user=1";
       &redirect_home;
     } else {
       $FLASH = "$user_result";
@@ -74,6 +74,11 @@ table({-class => "login" },
     td(span({-class => "submit"},submit("Go"))),
     )),
 end_form;
+print "<div style='clear:left'></div>";
+print "</div>";
+
+&footer;
+
 print end_html;
 
 sub app_sidebar {
@@ -144,5 +149,5 @@ sub create_user {
 sub redirect_home {
   $user_cookie = cookie(-name => 'user', -value => $user);
   $email_cookie = cookie(-name => 'email', -value => $email);
-  print redirect(-uri => &fu_path.$new_user_param, -cookie => [$user_cookie, $email_cookie]);
+  print redirect(-uri => &fu_path.$login_param, -cookie => [$user_cookie, $email_cookie]);
 }

@@ -24,6 +24,11 @@ $(function(){
     return false;
   });
   
+  $('a.no_profile').click(function(){
+    alert("No luck... this user hasn't set up a profile. You should create yours!");
+    return false;
+  });
+
   $('#teasers a').click(function(){
     alert('Wait a minute! You gotta sign up first!');
     return false;

@@ -118,7 +118,7 @@ h3.version {
 .activity_box li  {
   margin-bottom: 0.5em;
 }
-.activity_box a.topic_title {
+.activity_box a {
   margin: 0 0 .5em;
   color: white;
   font-weight: bold;
@@ -256,5 +256,17 @@ a.welcome_link {
   font-weight: bold;
 }
 a.welcome_link:hover {
+  text-decoration: underline;
+}
+#footer {
+  padding: 1em;
+  font-size: 75%;
+  text-align:center;
+}
+#footer a {
+  color: #999999;
+  text-decoration: none;
+}
+#footer a:hover {
   text-decoration: underline;
 }

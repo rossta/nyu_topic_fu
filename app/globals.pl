@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-$DEBUG = 1;
+$DEBUG = 0;
 $SID = param('test_link') || "N19663559";
 $TOPIC_DIR = param('test_dir') || "topic";
 $INDEX_DIR = param('test_index_dir') || "index";
