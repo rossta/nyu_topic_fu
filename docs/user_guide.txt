@@ -1,0 +1,98 @@
+###### USER GUIDE ########
+
+###### Topic Fu 1.0 ######
+
+Unix Tools Final Project
+
+Author: Ross Kaffenberger
+Date: 12.17.2008
+
+___ Overview ___
+
+Topic Fu is designed to be a flexible, fun to user discussion board. Users can sign up with a name and password, 
+create, edit and view topics, and share comments. Some added features allow easy navigation throughout the site, 
+including search and a module listing recently updated topics. Usability is improved by a friendly design and 
+unobtrusive javascript enhancements, like the fading flash messages and animated form controls.
+
+___ Key Features ___
+
+[Signup & Login]
+
+  When first arriving at the site, new users are redirected to the login page, where they will find a link to 
+  sign up in welcome box in the top right corner. Signing up is as easy as providing a name and email to register. 
+  This information is used to track user contributions on the discussion board. The signup area. "Teaser" links to 
+  existing topics are overridden by a javascript alert encouraging visitors to sign up. Email input is validated 
+  for proper format. After sign up, the new user is redirected to the Topic Fu homepage with a welcome flash message. 
+  An existing user arriving at the login page provides her name and email to log in again. Her login is verified 
+  against the existing information.
+  
+[Edit and Preview]
+
+  The edit and preview functionality behaves as it did with the My Topic project with some added improvements. 
+  Topic authors can now insert URLs to images, create ordered and unordered lists. 
+  
+  Edit Rules
+  
+  ---+ Text             // h1 tag
+  
+  ---++ Text            // h2 tag
+  
+  ---+++ Text           // h3 tag
+  
+  (blank line)          // p tag
+  
+  _text_                // italics
+  
+  *text*                // bold
+  
+  < & >                 // html entities
+  
+  [                     // unordered list of three list items
+  - item x
+  - item y
+  - item z
+  ]  
+  
+  {                     // ordered list of three list items
+  - item 1
+  - item 2
+  - item 3
+  }
+  
+  ! image-url !         // image tag with url as src attribute
+  
+  Another added bonus: Existing topics are auto-hyperlinked to their corresponding view pages with additional work 
+  from the author.
+  
+[View page]
+  
+  The view page for each topic now contains additional navigation to foster user dialogue. The view nav contains a 
+  link directly to the edit page for the topic. 
+  
+  User Comments
+  
+  There is also a link to reveal an inline comment form where users can append content that is associated with the 
+  topic, their name. While the topic is anonymous by design (intended to be a collective user thread, a la aa wiki), 
+  the comments allow for discussion and back and forth, ideally to improve the content of the topic overall. 
+  Formatting rules for comment authors also apply, so the comments can be equally as robust as the topics themselves. 
+  Comments are listed from most recent to earliest on the same page as the topic.
+  
+  Previous Revisions
+  
+  Users can also view earlier revisions of topics. All previous revisions are available for comparison in a select 
+  menu revealed when clicking on the 'Compare' link. Recently updated versions of the post are also directly linked 
+  through the side bar available on the view page. These are also listed from most recent to earliest, with the 
+  latest topic filtered out.
+  
+  Compare page
+  
+  Users can view a `diff` output by selecting a revision through the 'Compare' link while viewing any existing 
+  revision of a topic.
+  
+[Search]
+
+  Available on all logged-in pages is the Search box on the top right. The search functionality returns topics 
+  that contain the terms entered for the search. The results are ordered by score, based on word usage. The scoring 
+  system is a basic algorithm that counts 1 point for each instance of the keyword and applies a multiplier when 
+  matches are made on the topic title.
+

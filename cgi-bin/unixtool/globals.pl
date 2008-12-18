@@ -17,7 +17,6 @@ $HOST = $DEVELOPMENT if $DEBUG eq 1;
 $HOST = $STAGING if $DEBUG eq 2;
 $HOST = $PRODUCTION if $DEBUG eq 0;
 $CGI_URL = "$HOST/cgi-bin/unixtool";
-$CGI_URL = "$HOST/cgi-bin" if $DEBUG eq 1;
-$PUBLIC_DIR = "$HOST/";
+$PUBLIC_DIR = "$HOST";
 $PUBLIC_DIR = "$HOST/public" if $DEBUG eq 1;
 return 1;

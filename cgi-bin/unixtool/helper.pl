@@ -374,9 +374,9 @@ sub current_user {
 
 sub footer {
   print div({-id => 'footer'},
-    a({-href=> "#"}, "user guide"),
+    a({-href=> "$PUBLIC_DIR/docs/user_guide.txt"}, "user guide"),
     " | ",
-    a({-href=> "#"}, "developer guide"),
+    a({-href=> "$PUBLIC_DIR/docs/developer_guide.txt"}, "developer guide"),
     " | ",
     a({-href=> &view_path('ross')}, "the author"),
   );
